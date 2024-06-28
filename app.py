@@ -34,9 +34,12 @@ class MetroTravelApp:
     def load_data(self):
         file_path = filedialog.askopenfilename()
         if file_path:
-            self.data = pd.read_csv(file_path)
-            self.create_graph()
-            messagebox.showinfo("Datos Cargados", "Datos cargados exitosamente.")
+            try:
+                self.data = pd.read_csv(file_path)
+                self.create_graph()
+                messagebox.showinfo("Datos Cargados", "Datos cargados exitosamente.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Error al cargar los datos: {e}")
         else:
             messagebox.showerror("Error", "No se seleccionó ningún archivo.")
 
@@ -46,8 +49,8 @@ class MetroTravelApp:
             self.G.add_edge(row['Origen'], row['Destino'], weight=row['Precio'], visa=row['Requiere_Visa'])
 
     def find_route(self):
-        origin = self.origin_entry.get()
-        destination = self.destination_entry.get()
+        origin = self.origin_entry.get().strip()
+        destination = self.destination_entry.get().strip()
         has_visa = self.visa_var.get()
         route_option = self.route_option.get()
         
@@ -81,13 +84,18 @@ class MetroTravelApp:
             messagebox.showerror("Error", "No hay ruta disponible entre los destinos seleccionados.")
         except nx.NodeNotFound:
             messagebox.showerror("Error", "Uno de los nodos seleccionados no existe en la red de nodos filtrados por los requisitos de visa.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error al encontrar la ruta: {e}")
     
     def show_graph(self):
-        pos = nx.spring_layout(self.G)
-        nx.draw(self.G, pos, with_labels=True, node_color='skyblue', node_size=2000, font_size=10, font_weight='bold')
-        labels = nx.get_edge_attributes(self.G, 'weight')
-        nx.draw_networkx_edge_labels(self.G, pos, edge_labels=labels)
-        plt.show()
+        try:
+            pos = nx.spring_layout(self.G)
+            nx.draw(self.G, pos, with_labels=True, node_color='skyblue', node_size=2000, font_size=10, font_weight='bold')
+            labels = nx.get_edge_attributes(self.G, 'weight')
+            nx.draw_networkx_edge_labels(self.G, pos, edge_labels=labels)
+            plt.show()
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error al mostrar el grafo: {e}")
 
 # Crear la ventana principal
 root = tk.Tk()
