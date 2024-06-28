@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import messagebox, filedialog
+import threading
 
 class MetroTravelApp:
     def __init__(self, root):
@@ -32,23 +33,33 @@ class MetroTravelApp:
         tk.Button(self.root, text="Mostrar Grafo", command=self.show_graph).grid(row=6, columnspan=2)
 
     def load_data(self):
+        print("Cargar Datos")
         file_path = filedialog.askopenfilename()
         if file_path:
             try:
-                self.data = pd.read_csv(file_path)
-                self.create_graph()
-                messagebox.showinfo("Datos Cargados", "Datos cargados exitosamente.")
+                # Ejecutar la carga de datos en un hilo separado
+                threading.Thread(target=self.load_data_worker, args=(file_path,)).start()
             except Exception as e:
                 messagebox.showerror("Error", f"Error al cargar los datos: {e}")
         else:
             messagebox.showerror("Error", "No se seleccionó ningún archivo.")
+    
+    def load_data_worker(self, file_path):
+        try:
+            self.data = pd.read_csv(file_path)
+            self.create_graph()
+            messagebox.showinfo("Datos Cargados", "Datos cargados exitosamente.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al cargar los datos: {e}")
 
     def create_graph(self):
         self.G = nx.Graph()
         for index, row in self.data.iterrows():
             self.G.add_edge(row['Origen'], row['Destino'], weight=row['Precio'], visa=row['Requiere_Visa'])
+        print("Gráfico creado")
 
     def find_route(self):
+        print("Encontrar Ruta")
         origin = self.origin_entry.get().strip()
         destination = self.destination_entry.get().strip()
         has_visa = self.visa_var.get()
@@ -88,6 +99,7 @@ class MetroTravelApp:
             messagebox.showerror("Error", f"Ocurrió un error al encontrar la ruta: {e}")
     
     def show_graph(self):
+        print("Mostrar Grafo")
         try:
             pos = nx.spring_layout(self.G)
             nx.draw(self.G, pos, with_labels=True, node_color='skyblue', node_size=2000, font_size=10, font_weight='bold')
@@ -98,6 +110,7 @@ class MetroTravelApp:
             messagebox.showerror("Error", f"Ocurrió un error al mostrar el grafo: {e}")
 
 # Crear la ventana principal
-root = tk.Tk()
-app = MetroTravelApp(root)
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = MetroTravelApp(root)
+    root.mainloop()
