@@ -9,7 +9,6 @@ class MetroTravelApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Metro Travel Route Finder")
-
         self.create_widgets()
         
     def create_widgets(self):
