@@ -1,1 +1,2 @@
-# metro-travel
+<h1>METRO TRAVEL ROUTE TRACKER<h1>
+En este proyecto el usuario podra ingresar el aeropuerto de origen, el aeropuerto destino y si tiene VISA para hallar cual es la ruta más económica y cual es la ruta con menor cantidad de escalas
