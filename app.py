@@ -3,12 +3,21 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import messagebox, filedialog
-import threading
 
 class MetroTravelApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Metro Travel Route Finder")
+
+        # Cargar automáticamente los datos al inicio
+        try:
+            file_path = "data.csv"  # Nombre del archivo CSV con los datos
+            self.data = pd.read_csv(file_path)
+            self.create_graph()
+            messagebox.showinfo("Datos Cargados", "Datos cargados exitosamente desde 'data.csv'.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al cargar los datos desde 'data.csv': {e}")
+
         self.create_widgets()
         
     def create_widgets(self):
@@ -27,38 +36,15 @@ class MetroTravelApp:
         tk.Radiobutton(self.root, text="Ruta más barata", variable=self.route_option, value="Cheapest").grid(row=3, column=0)
         tk.Radiobutton(self.root, text="Menos escalas", variable=self.route_option, value="Fewest Stops").grid(row=3, column=1)
 
-        tk.Button(self.root, text="Cargar Datos", command=self.load_data).grid(row=4, columnspan=2)
-        tk.Button(self.root, text="Encontrar Ruta", command=self.find_route).grid(row=5, columnspan=2)
-        tk.Button(self.root, text="Mostrar Grafo", command=self.show_graph).grid(row=6, columnspan=2)
-
-    def load_data(self):
-        print("Cargar Datos")
-        file_path = filedialog.askopenfilename()
-        if file_path:
-            try:
-                # Ejecutar la carga de datos en un hilo separado
-                threading.Thread(target=self.load_data_worker, args=(file_path,)).start()
-            except Exception as e:
-                messagebox.showerror("Error", f"Error al cargar los datos: {e}")
-        else:
-            messagebox.showerror("Error", "No se seleccionó ningún archivo.")
-    
-    def load_data_worker(self, file_path):
-        try:
-            self.data = pd.read_csv(file_path)
-            self.create_graph()
-            messagebox.showinfo("Datos Cargados", "Datos cargados exitosamente.")
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al cargar los datos: {e}")
+        tk.Button(self.root, text="Encontrar Ruta", command=self.find_route).grid(row=4, columnspan=2)
+        tk.Button(self.root, text="Mostrar Grafo", command=self.show_graph).grid(row=5, columnspan=2)
 
     def create_graph(self):
         self.G = nx.Graph()
         for index, row in self.data.iterrows():
             self.G.add_edge(row['Origen'], row['Destino'], weight=row['Precio'], visa=row['Requiere_Visa'])
-        print("Gráfico creado")
 
     def find_route(self):
-        print("Encontrar Ruta")
         origin = self.origin_entry.get().strip()
         destination = self.destination_entry.get().strip()
         has_visa = self.visa_var.get()
@@ -98,7 +84,6 @@ class MetroTravelApp:
             messagebox.showerror("Error", f"Ocurrió un error al encontrar la ruta: {e}")
     
     def show_graph(self):
-        print("Mostrar Grafo")
         try:
             pos = nx.spring_layout(self.G)
             nx.draw(self.G, pos, with_labels=True, node_color='skyblue', node_size=2000, font_size=10, font_weight='bold')
