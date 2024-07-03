@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox, Canvas
 import math
+from collections import deque
+import heapq
 
 class MetroTravelApp:
     def __init__(self, root):
@@ -75,7 +77,6 @@ class MetroTravelApp:
             self.visa_matrix[j][i] = int(row['Requiere_Visa'])
 
     def dijkstra_shortest_path(self, start, end, has_visa, weight_matrix):
-        import heapq
 
         size = len(self.node_list)
         distances = [float('inf')] * size  # Distancias iniciales, todas a infinito
@@ -114,7 +115,6 @@ class MetroTravelApp:
         return path, distances[self.node_index[end]]
 
     def bfs_fewest_stops(self, start, end, has_visa):
-        from collections import deque
 
         size = len(self.node_list)
         visited = [False] * size
